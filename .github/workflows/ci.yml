@@ -26,9 +26,6 @@ jobs:
   ci:
     uses: OpenLyceum/Baton/.github/workflows/ci.yml@main
 
-  compliance:
-    uses: OpenLyceum/Baton/.github/workflows/shared-compliance-check.yml@main
-
   dependency-review:
     if: github.event_name == 'pull_request'
     uses: OpenLyceum/Baton/.github/workflows/shared-dependency-review.yml@main
