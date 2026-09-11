@@ -3,7 +3,7 @@
     "openphysics": {
       "source": {
         "source": "github",
-        "repo": "OpenPhysics/Baton"
+        "repo": "OpenLyceum/Baton"
       }
     }
   },

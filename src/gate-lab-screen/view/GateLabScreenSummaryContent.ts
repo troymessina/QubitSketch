@@ -2,7 +2,7 @@
  * GateLabScreenSummaryContent.ts
  *
  * Accessible screen summary (SceneryStack Interactive Description) for Gate Lab.
- * Mirrors CircuitScreenSummaryContent.ts — see that file for the shared OpenPhysics
+ * Mirrors CircuitScreenSummaryContent.ts — see that file for the shared OpenLyceum
  * accessibility convention this follows.
  */
 import { DerivedProperty } from "scenerystack/axon";

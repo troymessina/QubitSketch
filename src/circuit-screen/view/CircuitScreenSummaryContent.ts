@@ -5,7 +5,7 @@
  * circuit play area and controls, gives an interaction hint, and exposes a LIVE
  * "current details" paragraph derived from the model (the number of qubits).
  *
- * Follows the OpenPhysics accessibility convention; see the canonical
+ * Follows the OpenLyceum accessibility convention; see the canonical
  * SceneryStackTemplate/SimScreenSummaryContent.ts.
  */
 import { DerivedProperty } from "scenerystack/axon";

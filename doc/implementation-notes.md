@@ -137,5 +137,5 @@ points not obvious from file names:
 Two screens, `GateLabScreen` then `CircuitScreen` (`src/main.ts`'s `screens` array — Gate Lab first
 so the book's single-gate introduction precedes the full circuit builder). Both extend the same
 `CircuitEditingModel` base (see "Shared editing core" above) rather than duplicating grid-editing
-logic. Upstream Quirk lives at `../Baseline/Qubit/Quirk` (OpenPhysics/Baseline), not part of the
+logic. Upstream Quirk lives at `../Baseline/Qubit/Quirk` (OpenLyceum/Baseline), not part of the
 shipped build.

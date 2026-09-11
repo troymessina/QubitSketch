@@ -1,6 +1,6 @@
 # CLAUDE.md — QubitSketch
 
-Sim-specific context for AI assistants. General SceneryStack guidance: [OpenPhysics/.github/CLAUDE.md](https://github.com/OpenPhysics/.github/blob/main/CLAUDE.md).
+Sim-specific context for AI assistants. General SceneryStack guidance: [OpenLyceum/.github/CLAUDE.md](https://github.com/OpenLyceum/.github/blob/main/CLAUDE.md).
 
 ## Project
 
@@ -61,7 +61,7 @@ Lab additionally drives `inputBitsProperty` (the starting computational-basis st
 
 ## Accessibility
 
-Follows the shared [OpenPhysics accessibility convention](https://github.com/OpenPhysics/Baton/blob/main/ACCESSIBILITY.md).
+Follows the shared [OpenLyceum accessibility convention](https://github.com/OpenLyceum/Baton/blob/main/ACCESSIBILITY.md).
 `CircuitScreenView`/`GateLabScreenView` each register their own `*ScreenSummaryContent` (live
 current-details: qubit/ball count) via the `screenSummaryContent` super-option, and order the PDOM
 through a wrapper `Node`. CircuitScreen's a11y strings live under the top-level `a11y` key
