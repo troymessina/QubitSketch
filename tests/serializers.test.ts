@@ -91,6 +91,22 @@ describe("QasmSerializer", () => {
     expectSameDistribution(c, 3);
   });
 
+  it("exports single-control CSWAP as qelib1's cswap (Fredkin)", () => {
+    const c = grid({ "0,0": CTRL, "1,0": SWAP, "2,0": SWAP });
+    expect(circuitToQasm(c, 3)).toContain("cswap q[0],q[1],q[2];");
+  });
+
+  it("emits only a comment for a CSWAP with 2+ controls (qelib1's cswap takes exactly one)", () => {
+    const c = grid({ "0,0": CTRL, "1,0": CTRL, "2,0": SWAP, "3,0": SWAP });
+    expect(circuitToQasm(c, 4)).toContain("// unsupported in OpenQASM 2.0: controlled-SWAP with 2 control(s)");
+  });
+
+  it("import does not yet recognize cswap — an unsupported statement rejects the whole program", () => {
+    // QasmImport intentionally has no cswap case yet (see CLAUDE.md); this documents that the
+    // program is rejected outright (fails closed) rather than silently dropping the gate.
+    expect(qasmToCircuit(`${QASM_HEADER}qreg q[3];\ncswap q[0],q[1],q[2];\n`)).toBeNull();
+  });
+
   it("emits only a comment (no stray x conjugation) for gates OpenQASM 2.0 cannot express", () => {
     // Anti-controlled S has no qelib1 form; the x-conjugation must not be emitted around a comment.
     const c = grid({ "0,0": ANTI, "1,0": { kind: "controlledTarget", gate: "S" } });

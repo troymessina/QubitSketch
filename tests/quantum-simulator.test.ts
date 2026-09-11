@@ -7,6 +7,7 @@
  */
 import { describe, expect, it } from "vitest";
 import type { CircuitCell } from "../src/circuit-screen/model/GateType.js";
+import { NUM_STEPS } from "../src/circuit-screen/model/GateType.js";
 import { computeBlochVectors, simulate } from "../src/circuit-screen/model/QuantumSimulator.js";
 import { ANTI, CTRL, grid, H, probs, SWAP, TARGET_X, X } from "./helpers.js";
 
@@ -62,6 +63,16 @@ describe("simulate", () => {
   it("a SWAP pair exchanges two wires", () => {
     const c = grid({ "0,0": X, "0,1": SWAP, "2,1": SWAP });
     expect(probs(simulate(c, 3))[4]).toBeCloseTo(1, 12); // |100⟩
+  });
+
+  it("CSWAP (controlled SWAP / Fredkin) swaps only when the control is |1⟩", () => {
+    // Control (wire 0) on, wires 1 and 2 start at 1 and 0: swap fires, wire1↔wire2.
+    const on = grid({ "0,0": X, "1,0": X, "0,1": CTRL, "1,1": SWAP, "2,1": SWAP });
+    expect(probs(simulate(on, 3))[5]).toBeCloseTo(1, 12); // wire0=1,wire1=0,wire2=1 → index 5
+
+    // Control (wire 0) off: no swap, wire1/wire2 stay as prepared.
+    const off = grid({ "1,0": X, "0,1": CTRL, "1,1": SWAP, "2,1": SWAP });
+    expect(probs(simulate(off, 3))[2]).toBeCloseTo(1, 12); // wire0=0,wire1=1,wire2=0 → index 2
   });
 
   it("a plain gate sharing a column with a control is treated as the controlled target", () => {
@@ -127,6 +138,15 @@ describe("simulate", () => {
     expect(probs(simulate(c, 1, 0))[0]).toBeCloseTo(1, 12);
     expect(probs(simulate(c, 1, 1))[1]).toBeCloseTo(1, 12);
     expect(probs(simulate(c, 1, 2))[0]).toBeCloseTo(1, 12);
+  });
+
+  it("inputBits sets the starting computational-basis state instead of |0…0⟩", () => {
+    // No gates: the circuit is the identity, so the output equals the chosen input.
+    expect(probs(simulate(grid({}), 2, NUM_STEPS, 0b10))[0b10]).toBeCloseTo(1, 12);
+
+    // Two stacked PETE (Hadamard) boxes on a black (|1⟩) input ball still emerge black.
+    const c = grid({ "0,0": H, "0,1": H });
+    expect(probs(simulate(c, 1, NUM_STEPS, 0b1))[1]).toBeCloseTo(1, 12);
   });
 });
 

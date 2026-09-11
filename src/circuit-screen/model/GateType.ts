@@ -111,3 +111,27 @@ export const MAX_QUBITS = 5;
 export const MIN_QUBITS = 1;
 /** Default number of visible qubit wires when no preference/query-parameter overrides it. */
 export const DEFAULT_QUBITS = 3;
+
+// ── GateLabScreen ("Q is for Quantum" companion) constants ─────────────────────────
+// Gate Lab's own, smaller wire-count range and restricted tool palette. It shares the same
+// underlying grid (allocated at the global MAX_QUBITS × NUM_STEPS above) and simulator as
+// CircuitScreen — see CircuitEditingModel.ts — just with a tighter UI-visible range and vocabulary
+// matching the book: NOT (X), PETE (H), control, swap, eraser. CNOT/Toffoli/CSWAP are built the
+// same compositional way CircuitScreen already supports (control(s) sharing a column with a
+// target gate or a SWAP pair) — no separate tool is needed for them.
+export const GATE_LAB_MIN_QUBITS = 1;
+export const GATE_LAB_MAX_QUBITS = 3;
+export const GATE_LAB_DEFAULT_QUBITS = 2;
+
+/** Gate Lab's palette tools, in the book's introduction order. No anti-control (◦) or rotation
+ * gates (Rx/Ry/Rz) — the book never uses them, and rotations would leave the real-±1 amplitude
+ * world the mist display assumes. The `satisfies` (rather than a `SelectedTool[]` annotation)
+ * keeps the literal tuple type, so callers iterating this array get a fully narrowed
+ * `"X" | "H" | "control" | "swap" | "eraser"` element type instead of the full `SelectedTool` union. */
+export const GATE_LAB_TOOL_VALUES = [
+  GateType.X,
+  GateType.H,
+  "control",
+  "swap",
+  "eraser",
+] as const satisfies readonly SelectedTool[];

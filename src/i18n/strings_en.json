@@ -1,6 +1,7 @@
 {
   "title": "QubitSketch",
   "screens": {
+    "gateLab": "Gate Lab",
     "circuit": "Circuit"
   },
   "qubitSelector": {
@@ -94,5 +95,28 @@
   "preferences": {
     "title": "Simulation",
     "qubitCount": "Number of Qubits"
+  },
+  "gateLab": {
+    "toolDescriptions": {
+      "X": "NOT — flips the ball's color (black ↔ white)",
+      "H": "PETE — splits the ball into an even mist of black and white",
+      "control": "Control — the box beside it only acts when this ball is black",
+      "swap": "Swap — exchanges two balls (place two)",
+      "eraser": "Eraser — clears a box"
+    },
+    "mist": {
+      "title": "Mist",
+      "peek": "Peek",
+      "peekAgain": "Peek again",
+      "reset": "Back to mist"
+    },
+    "a11y": {
+      "screenSummary": {
+        "playArea": "The play area is a row of balls, one per wire, that pass through boxes placed left to right. Each ball starts black or white; boxes are NOT, PETE (Hadamard), control, and swap. A mist panel shows the surviving ball-color configurations and their sign.",
+        "controlArea": "The controls choose a box or the eraser, place boxes on the grid, click a ball to flip its starting color, set the number of balls, undo and redo, step through the boxes, and peek at one random outcome. A Reset All button returns the lab to its starting state.",
+        "interactionHint": "Click a ball to choose its starting color, choose a box, then place it on the grid and watch the mist update."
+      },
+      "currentDetails": "The lab has {{qubits}} balls."
+    }
   }
 }

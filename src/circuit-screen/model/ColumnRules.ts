@@ -3,10 +3,12 @@
  *
  * The single source of truth for which circuit columns the simulator applies IN FULL.
  *
- * `QuantumSimulator.applyColumn` supports three column shapes (see doc/model.md):
- *   1. no controls, no swaps  — every gate cell is an independent single-qubit gate
- *   2. one or more controls   — exactly one gate-bearing wire is the target
- *   3. exactly two swaps      — those two wires are exchanged
+ * `QuantumSimulator.applyColumn` supports four column shapes (see doc/model.md):
+ *   1. no controls, no swaps        — every gate cell is an independent single-qubit gate
+ *   2. one or more controls, no swaps — exactly one gate-bearing wire is the target
+ *   3. exactly two swaps, no controls — those two wires are exchanged (SWAP)
+ *   4. exactly two swaps, one+ controls — those two wires are exchanged conditionally
+ *      (CSWAP / Fredkin)
  *
  * Anything else means at least one placed cell has no effect: a second gate in a
  * controlled column, a gate sharing a column with a SWAP, a third swap endpoint.
@@ -14,7 +16,8 @@
  * gates that never act — the one failure mode this module exists to prevent.
  *
  * Every entry point that can write a grid must agree on this predicate:
- *   - `QubitSketchModel` placement guards (interactive editing)
+ *   - `CircuitEditingModel` placement guards (interactive editing — shared by QubitSketchModel
+ *     and GateLabModel)
  *   - `CircuitSerializer.deserialize` (shared `#circuit=` links)
  *   - `QasmImport.packOpsIntoColumns` (OpenQASM import)
  *
@@ -55,10 +58,14 @@ export function censusColumn(cells: readonly CircuitCell[]): ColumnCensus {
 
 /**
  * True if the simulator applies every gate-bearing cell in a column with this census —
- * i.e. the column is one of the three supported shapes and nothing is silently dropped.
+ * i.e. the column is one of the four supported shapes and nothing is silently dropped.
  *
- * A lone SWAP endpoint is permitted: it bears no gate, so nothing is dropped, and the user
- * must be able to place the first ✕ before the second.
+ * A lone SWAP endpoint is permitted, with or without a control already present: neither
+ * bears a gate, so nothing is dropped, and the user must be able to place the two swap
+ * endpoints and the control(s) of a CSWAP in any order (just as a control may be placed
+ * before its target gate). Once a gate is present, though, it may not share a column with
+ * any swap endpoint — the simulator's SWAP/CSWAP branch owns the whole column and never
+ * looks at gate-bearing cells.
  */
 export function isApplicableColumn(census: ColumnCensus): boolean {
   const { controls, swaps, gates } = census;
@@ -66,8 +73,9 @@ export function isApplicableColumn(census: ColumnCensus): boolean {
     // Independent single-qubit gates, or one controlled operation with a single target.
     return controls === 0 || gates <= 1;
   }
-  // A SWAP pair must own its column outright (controlled-SWAP is out of scope in v1).
-  return swaps <= 2 && controls === 0 && gates === 0;
+  // One or two endpoints (a third is refused): a plain SWAP or a CSWAP/Fredkin, complete or
+  // still being placed, with any number of controls. `controls` is intentionally unconstrained.
+  return swaps <= 2 && gates === 0;
 }
 
 /**

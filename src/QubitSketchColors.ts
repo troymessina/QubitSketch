@@ -225,6 +225,35 @@ const QubitSketchColors = {
     default: "#1a1a1a",
     projector: "#1a1a1a",
   }),
+
+  // ── GateLabScreen ("Q is for Quantum" companion) ────────────────────────────
+  // Black/white ball glyphs (the book's qubits) and the "mist" superposition cloud.
+
+  ballBlackColorProperty: new ProfileColorProperty(QubitSketchNamespace, "ballBlack", {
+    default: "#1a1a1a",
+    projector: "#1a1a1a",
+  }),
+
+  ballWhiteColorProperty: new ProfileColorProperty(QubitSketchNamespace, "ballWhite", {
+    default: "#f5f5f5",
+    projector: "#f5f5f5",
+  }),
+
+  /** Outline on every ball glyph, so a white ball reads clearly against either background. */
+  ballStrokeColorProperty: new ProfileColorProperty(QubitSketchNamespace, "ballStroke", {
+    default: "#9e9e9e",
+    projector: "#757575",
+  }),
+
+  mistCloudColorProperty: new ProfileColorProperty(QubitSketchNamespace, "mistCloud", {
+    default: "#1a3a5c",
+    projector: "#e8eaf6",
+  }),
+
+  mistCloudBorderColorProperty: new ProfileColorProperty(QubitSketchNamespace, "mistCloudBorder", {
+    default: "#4fc3f7",
+    projector: "#1565c0",
+  }),
 };
 
 export default QubitSketchColors;

@@ -11,17 +11,20 @@
  *
  * "Live" (inspectStep === null) is treated as sitting at the end of the circuit, so the
  * readout shows `k / depth` while inspecting and "Live" otherwise.
+ *
+ * Shared by CircuitScreen and GateLabScreen — it only reads CircuitEditingModel's base
+ * inspect-step/circuit-depth API.
  */
 import { DerivedProperty } from "scenerystack/axon";
 import { HBox, Text } from "scenerystack/scenery";
 import { FlatAppearanceStrategy, RectangularPushButton } from "scenerystack/sun";
+import type { CircuitEditingModel } from "../../common/CircuitEditingModel.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import QubitSketchColors from "../../QubitSketchColors.js";
 import { FONTS } from "../../QubitSketchFonts.js";
-import type { QubitSketchModel } from "../model/QubitSketchModel.js";
 
 export class InspectControlNode extends HBox {
-  public constructor(model: QubitSketchModel) {
+  public constructor(model: CircuitEditingModel) {
     const { inspectStepProperty: stepProperty, circuitDepthProperty: depthProperty } = model;
     const strings = StringManager.getInstance().getInspectStrings();
     const a11yControls = StringManager.getInstance().getA11yStrings().controls;

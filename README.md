@@ -2,18 +2,23 @@
 
 [![CI](https://github.com/OpenPhysics/QubitSketch/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenPhysics/QubitSketch/actions/workflows/ci.yml)
 
-A drag-and-drop quantum circuit builder with a live state simulator, built with [SceneryStack](https://scenerystack.org/).
-Place gates on qubit wires and watch probabilities, amplitudes, Bloch spheres, and measurements update in
-real time.
+A two-screen quantum computing sim built with [SceneryStack](https://scenerystack.org/): a
+book-modeled **Gate Lab** for an introduction to single gates and superposition, and a full
+drag-and-drop **Circuit** builder with a live state simulator. Place gates on qubit wires and
+watch probabilities, amplitudes, Bloch spheres, and measurements update in real time.
 
 ## Features
 
-- Build circuits by dragging gates or click-to-place; undo/redo and shareable URL encoding
-- Standard gates (H, X, Y, Z, S, T, √X) plus parametrized Rx/Ry/Rz rotations
-- Controls, CNOT, Toffoli, and SWAP columns for entanglement experiments
-- Live CPU statevector simulation (≤ 5 qubits) driving four result panels
-- Probabilities, amplitudes, drag-rotatable Bloch spheres, and measurement histogram
-- English and French UI, projector color profile, and PWA support
+- **Gate Lab** — modeled on Terry Rudolph's book *Q is for Quantum*: black/white balls (qubits)
+  pass through NOT/PETE (Hadamard)/control/swap boxes; superposition is shown as a "mist" of
+  surviving ball configurations and their sign; a Peek button samples one outcome
+- **Circuit** — build circuits by dragging gates or click-to-place; undo/redo and shareable URL
+  encoding
+  - Standard gates (H, X, Y, Z, S, T, √X) plus parametrized Rx/Ry/Rz rotations
+  - Controls, CNOT, Toffoli, SWAP, and CSWAP (Fredkin) columns for entanglement experiments
+  - Live CPU statevector simulation (≤ 5 qubits) driving four result panels
+  - Probabilities, amplitudes, drag-rotatable Bloch spheres, and measurement histogram
+- English, Spanish, and French UI, projector color profile, and PWA support
 
 ## Quick Start
 

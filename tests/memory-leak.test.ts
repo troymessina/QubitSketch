@@ -22,10 +22,13 @@ import { describe, expect, it } from "vitest";
 import { QubitSketchModel } from "../src/circuit-screen/model/QubitSketchModel.js";
 import type { SlotDropTarget } from "../src/circuit-screen/view/CircuitCanvas.js";
 import { GatePalettePanel, type PaletteDragContext } from "../src/circuit-screen/view/GatePalettePanel.js";
+import { GateLabModel } from "../src/gate-lab-screen/model/GateLabModel.js";
+import { BoxPalettePanel } from "../src/gate-lab-screen/view/BoxPalettePanel.js";
 
 // Long-lived model sentinel: stays alive across tests so that a disposed panel
 // must drop its own reference (unlink selectedToolProperty) to be collectible.
 const sharedModel = new QubitSketchModel();
+const sharedGateLabModel = new GateLabModel();
 
 // Drop target that never reports a slot — drags simply cancel.
 const noopDropTarget: SlotDropTarget = {
@@ -116,5 +119,42 @@ describe("Memory leak regression", () => {
     await forceGC(refs);
     const survivors = refs.filter((r) => r.deref() !== undefined).length;
     expect(survivors).toBe(0);
+  });
+});
+
+describe("Memory leak regression — Gate Lab", () => {
+  it("bare GateLabModel is collected (no global retention)", async () => {
+    const ref = (() => new WeakRef<object>(new GateLabModel()))();
+    await forceGC(ref);
+    expect(ref.deref()).toBeUndefined();
+  });
+
+  it("BoxPalettePanel (with an overlay layer) is collected after dispose", async () => {
+    const ref = (() => {
+      const overlayLayer = new Node();
+      const panel = new BoxPalettePanel(sharedGateLabModel, overlayLayer);
+      const panelRef = new WeakRef<object>(panel);
+      panel.dispose();
+      return panelRef;
+    })();
+    await forceGC(ref);
+    expect(ref.deref()).toBeUndefined();
+  });
+
+  it("BoxPalettePanel (no overlay layer) is collected after dispose", async () => {
+    const ref = (() => {
+      const panel = new BoxPalettePanel(sharedGateLabModel);
+      const panelRef = new WeakRef<object>(panel);
+      panel.dispose();
+      return panelRef;
+    })();
+    await forceGC(ref);
+    expect(ref.deref()).toBeUndefined();
+  });
+
+  it("double dispose() does not throw", () => {
+    const panel = new BoxPalettePanel(sharedGateLabModel, new Node());
+    panel.dispose();
+    expect(() => panel.dispose()).not.toThrow();
   });
 });

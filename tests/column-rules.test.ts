@@ -30,16 +30,19 @@ describe("isApplicableColumn", () => {
     expect(isApplicableColumn({ controls: 1, swaps: 0, gates: 1 })).toBe(true); // CNOT
     expect(isApplicableColumn({ controls: 2, swaps: 0, gates: 1 })).toBe(true); // Toffoli
     expect(isApplicableColumn({ controls: 0, swaps: 2, gates: 0 })).toBe(true); // SWAP pair
+    expect(isApplicableColumn({ controls: 1, swaps: 2, gates: 0 })).toBe(true); // CSWAP / Fredkin
+    expect(isApplicableColumn({ controls: 2, swaps: 2, gates: 0 })).toBe(true); // controlled-controlled-SWAP
   });
 
-  it("permits a lone swap endpoint (an in-progress pair drops no gate)", () => {
+  it("permits a lone swap endpoint, with or without a control already placed (in-progress CSWAP)", () => {
     expect(isApplicableColumn({ controls: 0, swaps: 1, gates: 0 })).toBe(true);
+    expect(isApplicableColumn({ controls: 1, swaps: 1, gates: 0 })).toBe(true);
   });
 
   it("rejects shapes whose extra cells the simulator would drop", () => {
     expect(isApplicableColumn({ controls: 1, swaps: 0, gates: 2 })).toBe(false); // 2nd target ignored
     expect(isApplicableColumn({ controls: 0, swaps: 2, gates: 1 })).toBe(false); // gate beside a swap
-    expect(isApplicableColumn({ controls: 1, swaps: 2, gates: 0 })).toBe(false); // controlled-SWAP
+    expect(isApplicableColumn({ controls: 1, swaps: 1, gates: 1 })).toBe(false); // gate beside a lone endpoint
     expect(isApplicableColumn({ controls: 0, swaps: 3, gates: 0 })).toBe(false); // 3 endpoints
   });
 
@@ -130,13 +133,15 @@ describe("shared links are shape-validated", () => {
     expect(deserialize(payload)).toBeNull();
   });
 
-  it("rejects a controlled-SWAP payload (the whole column would be a no-op)", () => {
+  it("round-trips a controlled-SWAP (CSWAP/Fredkin) payload", () => {
     const payload = JSON.stringify({
       v: 1,
       q: 3,
       c: ["c,.,.,.,.,.,.,.", "s,.,.,.,.,.,.,.", "s,.,.,.,.,.,.,.", ".,.,.,.,.,.,.,.", ".,.,.,.,.,.,.,."],
     });
-    expect(deserialize(payload)).toBeNull();
+    const out = deserialize(payload);
+    expect(out).not.toBeNull();
+    expect(isApplicableCircuit(out!.circuit)).toBe(true);
   });
 
   it("rejects a payload whose illegal column is on a hidden wire", () => {

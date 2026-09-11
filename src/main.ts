@@ -22,6 +22,7 @@ import "./brand.js";
 import { onReadyToLaunch, PreferencesModel, Sim } from "scenerystack/sim";
 import { Tandem } from "scenerystack/tandem";
 import { CircuitScreen } from "./circuit-screen/CircuitScreen.js";
+import { GateLabScreen } from "./gate-lab-screen/GateLabScreen.js";
 import { StringManager } from "./i18n/StringManager.js";
 import { QubitSketchPreferencesModel } from "./preferences/QubitSketchPreferencesModel.js";
 import { QubitSketchPreferencesNode } from "./preferences/QubitSketchPreferencesNode.js";
@@ -34,9 +35,14 @@ onReadyToLaunch(() => {
   const qubitSketchPreferences = new QubitSketchPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
   const screens = [
+    new GateLabScreen({
+      // The screen name Property updates automatically when the locale changes
+      name: stringManager.getScreenNames().gateLabStringProperty,
+      tandem: Tandem.ROOT.createTandem("gateLabScreen"),
+      backgroundColorProperty: QubitSketchColors.backgroundColorProperty,
+    }),
     new CircuitScreen({
       preferences: qubitSketchPreferences,
-      // The screen name Property updates automatically when the locale changes
       name: stringManager.getScreenNames().circuitStringProperty,
       tandem: Tandem.ROOT.createTandem("circuitScreen"),
       backgroundColorProperty: QubitSketchColors.backgroundColorProperty,

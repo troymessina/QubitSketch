@@ -1,6 +1,7 @@
 {
   "title": "QubitSketch",
   "screens": {
+    "gateLab": "Laboratorio de Puertas",
     "circuit": "Circuito"
   },
   "qubitSelector": {
@@ -94,5 +95,28 @@
   "preferences": {
     "title": "Simulación",
     "qubitCount": "Número de cúbits"
+  },
+  "gateLab": {
+    "toolDescriptions": {
+      "X": "NOT — invierte el color de la bola (negro ↔ blanco)",
+      "H": "PETE — divide la bola en una niebla equitativa de negro y blanco",
+      "control": "Control — la caja de al lado solo actúa cuando esta bola es negra",
+      "swap": "Intercambio — intercambia dos bolas (coloca dos)",
+      "eraser": "Borrador — vacía una caja"
+    },
+    "mist": {
+      "title": "Niebla",
+      "peek": "Mirar",
+      "peekAgain": "Mirar de nuevo",
+      "reset": "Volver a la niebla"
+    },
+    "a11y": {
+      "screenSummary": {
+        "playArea": "El área de juego es una fila de bolas, una por cable, que pasan por cajas colocadas de izquierda a derecha. Cada bola empieza negra o blanca; las cajas son NOT, PETE (Hadamard), control y swap. Un panel de niebla muestra las configuraciones de color de bola que sobreviven y su signo.",
+        "controlArea": "Los controles eligen una caja o el borrador, colocan cajas en la cuadrícula, hacen clic en una bola para invertir su color inicial, ajustan el número de bolas, deshacen y rehacen, recorren las cajas, y miran un resultado aleatorio. Un botón Restablecer todo devuelve el laboratorio a su estado inicial.",
+        "interactionHint": "Haz clic en una bola para elegir su color inicial, elige una caja, colócala en la cuadrícula y observa cómo se actualiza la niebla."
+      },
+      "currentDetails": "El laboratorio tiene {{qubits}} bolas."
+    }
   }
 }

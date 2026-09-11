@@ -1,6 +1,7 @@
 {
   "title": "QubitSketch",
   "screens": {
+    "gateLab": "Labo de portes",
     "circuit": "Circuit"
   },
   "qubitSelector": {
@@ -94,5 +95,28 @@
   "preferences": {
     "title": "Simulation",
     "qubitCount": "Nombre de qubits"
+  },
+  "gateLab": {
+    "toolDescriptions": {
+      "X": "NON — inverse la couleur de la bille (noir ↔ blanc)",
+      "H": "PETE — divise la bille en une brume égale de noir et de blanc",
+      "control": "Contrôle — la case voisine n'agit que lorsque cette bille est noire",
+      "swap": "Échange — permute deux billes (placez-en deux)",
+      "eraser": "Gomme — efface une case"
+    },
+    "mist": {
+      "title": "Brume",
+      "peek": "Regarder",
+      "peekAgain": "Regarder à nouveau",
+      "reset": "Revenir à la brume"
+    },
+    "a11y": {
+      "screenSummary": {
+        "playArea": "La zone de jeu est une rangée de billes, une par fil, qui traversent des cases placées de gauche à droite. Chaque bille commence noire ou blanche ; les cases sont NON, PETE (Hadamard), contrôle et échange. Un panneau de brume montre les configurations de couleur de bille qui subsistent et leur signe.",
+        "controlArea": "Les commandes choisissent une case ou la gomme, placent des cases sur la grille, cliquent sur une bille pour inverser sa couleur initiale, règlent le nombre de billes, annulent et rétablissent, parcourent les cases, et regardent un résultat aléatoire. Un bouton Tout réinitialiser ramène le laboratoire à son état initial.",
+        "interactionHint": "Cliquez sur une bille pour choisir sa couleur initiale, choisissez une case, placez-la sur la grille et observez la mise à jour de la brume."
+      },
+      "currentDetails": "Le laboratoire comporte {{qubits}} billes."
+    }
   }
 }

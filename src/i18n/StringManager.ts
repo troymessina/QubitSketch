@@ -65,9 +65,11 @@ export class StringManager {
   }
 
   public getScreenNames(): {
+    readonly gateLabStringProperty: ReadOnlyProperty<string>;
     readonly circuitStringProperty: ReadOnlyProperty<string>;
   } {
     return {
+      gateLabStringProperty: stringProperties.screens.gateLabStringProperty,
       circuitStringProperty: stringProperties.screens.circuitStringProperty,
     };
   }
@@ -206,5 +208,44 @@ export class StringManager {
   /** Simulation-specific preference labels shown in Preferences → Simulation. */
   public getPreferences() {
     return stringProperties.preferences;
+  }
+
+  /**
+   * Strings for GateLabScreen: one-line descriptions for its restricted palette
+   * (see GATE_LAB_TOOL_VALUES), the mist panel's labels, and its accessibility strings.
+   */
+  public getGateLabStrings(): {
+    readonly toolDescriptions: {
+      readonly X: ReadOnlyProperty<string>;
+      readonly H: ReadOnlyProperty<string>;
+      readonly control: ReadOnlyProperty<string>;
+      readonly swap: ReadOnlyProperty<string>;
+      readonly eraser: ReadOnlyProperty<string>;
+    };
+    readonly mist: {
+      readonly titleStringProperty: ReadOnlyProperty<string>;
+      readonly peekStringProperty: ReadOnlyProperty<string>;
+      readonly peekAgainStringProperty: ReadOnlyProperty<string>;
+      readonly resetStringProperty: ReadOnlyProperty<string>;
+    };
+    readonly a11y: typeof stringProperties.gateLab.a11y;
+  } {
+    const g = stringProperties.gateLab;
+    return {
+      toolDescriptions: {
+        X: g.toolDescriptions.XStringProperty,
+        H: g.toolDescriptions.HStringProperty,
+        control: g.toolDescriptions.controlStringProperty,
+        swap: g.toolDescriptions.swapStringProperty,
+        eraser: g.toolDescriptions.eraserStringProperty,
+      },
+      mist: {
+        titleStringProperty: g.mist.titleStringProperty,
+        peekStringProperty: g.mist.peekStringProperty,
+        peekAgainStringProperty: g.mist.peekAgainStringProperty,
+        resetStringProperty: g.mist.resetStringProperty,
+      },
+      a11y: g.a11y,
+    };
   }
 }

@@ -56,7 +56,12 @@ export class GateNode extends Node {
   private readonly label: Text;
   private readonly size: number;
 
-  public constructor(gateType: GateType, size: number) {
+  /**
+   * `labelOverride` swaps the glyph without changing the gate's identity or color — e.g.
+   * GateLabScreen draws the same X/H boxes as CircuitScreen but labeled "NOT"/"PETE" to match
+   * the book. Defaults to the standard glyph ({@link GATE_LABEL_MAP}).
+   */
+  public constructor(gateType: GateType, size: number, labelOverride?: string) {
     super();
     this.size = size;
 
@@ -65,7 +70,7 @@ export class GateNode extends Node {
       cornerRadius: GATE_CORNER_RADIUS,
     });
 
-    const text = GATE_LABEL_MAP[gateType];
+    const text = labelOverride ?? GATE_LABEL_MAP[gateType];
     this.label = new Text(text, {
       font: labelFont(text, size),
       fill: QubitSketchColors.onGateTextColorProperty,
@@ -77,8 +82,8 @@ export class GateNode extends Node {
     this.addChild(this.label);
   }
 
-  public updateGateType(gateType: GateType): void {
-    const text = GATE_LABEL_MAP[gateType];
+  public updateGateType(gateType: GateType, labelOverride?: string): void {
+    const text = labelOverride ?? GATE_LABEL_MAP[gateType];
     this.background.fill = GATE_COLOR_MAP[gateType];
     this.label.string = text;
     this.label.font = labelFont(text, this.size);

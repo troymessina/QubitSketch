@@ -4,8 +4,9 @@
  * Circuit grid → OpenQASM 2.0 (a teaching subset, for copy-into-Qiskit interop).
  *
  *   - Exports the gates QubitSketch supports (h, x, y, z, s, t, sdg, tdg, sx, rx/ry/rz)
- *     plus the common controlled forms in qelib1 (cx, cy, cz, ch, ccx, crx, cry, crz)
- *     and swap. Anti-controls (◦) are emitted by conjugating the control wire with x.
+ *     plus the common controlled forms in qelib1 (cx, cy, cz, ch, ccx, crx, cry, crz),
+ *     swap, and single-control cswap (Fredkin). Anti-controls (◦) are emitted by
+ *     conjugating the control wire with x.
  *   - Anything OpenQASM 2.0 can't express directly (e.g. a controlled-S, or 3+ controls)
  *     is emitted as a clear `// unsupported` comment rather than incorrect output.
  *
@@ -84,6 +85,38 @@ function emitControlledColumn(
   }
 }
 
+/**
+ * Builds the CSWAP (Fredkin) statement for `controls` → wires `a`,`b`, or null if 2.0 can't
+ * express it — qelib1.inc's `cswap` takes exactly one control.
+ */
+function controlledSwapStatement(controls: readonly number[], a: number, b: number): string | null {
+  return controls.length === 1 ? `cswap q[${controls[0]}],q[${a}],q[${b}];` : null;
+}
+
+/** Emits the statements for one controlled-SWAP column, mirroring {@link emitControlledColumn}. */
+function emitControlledSwapColumn(
+  lines: string[],
+  onControls: readonly number[],
+  offControls: readonly number[],
+  a: number,
+  b: number,
+): void {
+  const stmt = controlledSwapStatement([...onControls, ...offControls], a, b);
+  if (stmt === null) {
+    lines.push(
+      `// unsupported in OpenQASM 2.0: controlled-SWAP with ${onControls.length + offControls.length} control(s)`,
+    );
+    return;
+  }
+  for (const c of offControls) {
+    lines.push(`x q[${c}];`);
+  }
+  lines.push(stmt);
+  for (const c of offControls) {
+    lines.push(`x q[${c}];`);
+  }
+}
+
 /** Emits the statements for one circuit column into `lines`. */
 function columnToQasm(circuit: Grid, n: number, step: number, lines: string[]): void {
   const { onControls, offControls, swapWires, gateWires } = classifyColumn(circuit, step, n);
@@ -93,8 +126,16 @@ function columnToQasm(circuit: Grid, n: number, step: number, lines: string[]): 
 
   const hasControl = columnHasControl({ onControls, offControls, swapWires, gateWires });
 
-  if (swapWires.length === 2 && !hasControl) {
-    lines.push(`swap q[${swapWires[0]}],q[${swapWires[1]}];`);
+  if (swapWires.length === 2) {
+    const [wireA, wireB] = swapWires;
+    if (wireA === undefined || wireB === undefined) {
+      return;
+    }
+    if (hasControl) {
+      emitControlledSwapColumn(lines, onControls, offControls, wireA, wireB);
+    } else {
+      lines.push(`swap q[${wireA}],q[${wireB}];`);
+    }
     return;
   }
 

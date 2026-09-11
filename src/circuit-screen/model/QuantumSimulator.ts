@@ -109,29 +109,80 @@ export function applySwap(state: Complex[], a: number, b: number): void {
 }
 
 /**
+ * Controlled-SWAP (CSWAP / Fredkin gate): exchanges wires `a` and `b`, but only for
+ * basis states whose control bits match `onControls` (must be |1⟩) and `offControls`
+ * (must be |0⟩) — the same control-matching convention as {@link applyControlledGate}.
+ * Mutates `state` in place.
+ */
+export function applyControlledSwap(
+  state: Complex[],
+  a: number,
+  b: number,
+  onControls: readonly number[],
+  offControls: readonly number[],
+): void {
+  if (a === b) {
+    return;
+  }
+  const aBit = 1 << a;
+  const bBit = 1 << b;
+  let controlMask = 0;
+  let controlValue = 0;
+  for (const c of onControls) {
+    const bit = 1 << c;
+    controlMask |= bit;
+    controlValue |= bit;
+  }
+  for (const c of offControls) {
+    controlMask |= 1 << c;
+  }
+
+  for (let i = 0; i < state.length; i++) {
+    // Visit each differing pair once (bit a = 0, bit b = 1), and only when the controls match.
+    if ((i & aBit) !== 0 || (i & bBit) === 0 || (i & controlMask) !== controlValue) {
+      continue;
+    }
+    const j = (i | aBit) & ~bBit; // partner with bit a = 1, bit b = 0
+    const si = state[i];
+    const sj = state[j];
+    if (si === undefined || sj === undefined) {
+      // Unreachable for a dense statevector; see the note in applyControlledGate.
+      throw new Error(`applyControlledSwap: statevector hole at index ${i} or ${j}`);
+    }
+    state[i] = sj;
+    state[j] = si;
+  }
+}
+
+/**
  * Applies one circuit column (all cells at a given step) to the state.
  *
  * Semantics:
- *   - A column with exactly two SWAP endpoints (and no controls) exchanges those wires.
- *   - If the column contains one or more controls (• on |1⟩ or ◦ on |0⟩), there must be
- *     exactly one gate-bearing wire; that gate is applied conditioned on every control.
+ *   - A column with exactly two SWAP endpoints exchanges those wires — unconditionally if
+ *     the column has no controls, or conditioned on every control (• on |1⟩ / ◦ on |0⟩) if
+ *     it does (CSWAP / Fredkin gate).
+ *   - Otherwise, if the column contains one or more controls, there must be exactly one
+ *     gate-bearing wire; that gate is applied conditioned on every control.
  *     (CNOT = X target + one control. CCX/Toffoli = X target + two controls.)
  *   - Otherwise every gate cell is an independent single-qubit gate (disjoint targets
  *     commute, so order does not matter).
  *
  * Limitations (v1): with controls present, only the first gate-bearing wire is the target
- * (one controlled operation per column); controlled-SWAP (Fredkin) and 3+ swap endpoints
- * in a column are treated as no-ops.
+ * (one controlled operation per column); 3+ swap endpoints in a column are a no-op.
  */
 function applyColumn(state: Complex[], n: number, circuit: Grid, step: number): void {
   const { onControls, offControls, swapWires, gateWires } = classifyColumn(circuit, step, n);
   const hasControl = columnHasControl({ onControls, offControls, swapWires, gateWires });
 
-  // SWAP: exactly two endpoints and no controls (controlled-SWAP is not supported in v1).
-  if (swapWires.length === 2 && !hasControl) {
+  // SWAP: exactly two endpoints. Plain SWAP with no controls, or CSWAP/Fredkin when controlled.
+  if (swapWires.length === 2) {
     const [wireA, wireB] = swapWires;
     if (wireA !== undefined && wireB !== undefined) {
-      applySwap(state, wireA, wireB);
+      if (hasControl) {
+        applyControlledSwap(state, wireA, wireB, onControls, offControls);
+      } else {
+        applySwap(state, wireA, wireB);
+      }
     }
     return;
   }
@@ -157,20 +208,24 @@ function applyColumn(state: Complex[], n: number, circuit: Grid, step: number): 
 }
 
 /**
- * Simulates the circuit from |0…0⟩ and returns the statevector (length 2^n) after
- * applying the first `maxColumns` columns. Only the first `n` qubit rows participate.
+ * Simulates the circuit and returns the statevector (length 2^n) after applying the first
+ * `maxColumns` columns. Only the first `n` qubit rows participate.
  *
  * `maxColumns` defaults to the full circuit; passing a smaller value powers the
  * step-through "inspect" mode (the state after the first k columns). Columns beyond
  * the circuit's content are empty, so any value ≥ the circuit depth gives the final state.
+ *
+ * `inputBits` is a bitmask (bit `q` set ⇒ wire `q` starts at |1⟩) giving the starting
+ * computational-basis state; it defaults to |0…0⟩. Masked to `n` bits, so a mask carrying
+ * a bit for a hidden/out-of-range wire cannot start the state outside the simulated dimension.
  */
-export function simulate(circuit: Grid, n: number, maxColumns: number = NUM_STEPS): Complex[] {
+export function simulate(circuit: Grid, n: number, maxColumns: number = NUM_STEPS, inputBits = 0): Complex[] {
   const dim = 1 << n;
   const state: Complex[] = new Array(dim);
-  state[0] = Complex.ONE;
-  for (let i = 1; i < dim; i++) {
+  for (let i = 0; i < dim; i++) {
     state[i] = Complex.ZERO;
   }
+  state[inputBits & (dim - 1)] = Complex.ONE;
 
   const limit = Math.max(0, Math.min(NUM_STEPS, maxColumns));
   for (let step = 0; step < limit; step++) {

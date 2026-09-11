@@ -64,18 +64,20 @@ describe("placement", () => {
     expect(cellAt(model2, 1, 0).kind).toBe("control");
   });
 
-  it("keeps swap columns exclusive: no gates or controls alongside a swap", () => {
+  it("keeps swap columns free of gates, but allows a control (CSWAP/Fredkin)", () => {
     const model = new QubitSketchModel();
     place(model, "swap", 0, 0);
     place(model, "H", 1, 0);
     expect(cellAt(model, 1, 0).kind).toBe("empty");
+    // A control MAY join a swap column — this is how CSWAP (Fredkin) is built, and it may be
+    // placed before or after the swap pair is complete (see ColumnRules.isApplicableColumn).
     place(model, "control", 1, 0);
-    expect(cellAt(model, 1, 0).kind).toBe("empty");
-    place(model, "swap", 1, 0);
-    expect(cellAt(model, 1, 0).kind).toBe("swap");
-    // Third endpoint refused (at most one pair per column).
+    expect(cellAt(model, 1, 0).kind).toBe("control");
     place(model, "swap", 2, 0);
-    expect(cellAt(model, 2, 0).kind).toBe("empty");
+    expect(cellAt(model, 2, 0).kind).toBe("swap");
+    // Third endpoint refused (at most one pair per column).
+    place(model, "swap", 3, 0);
+    expect(cellAt(model, 3, 0).kind).toBe("empty");
     // And no swap may join a column that already holds a gate.
     place(model, "H", 0, 1);
     place(model, "swap", 1, 1);

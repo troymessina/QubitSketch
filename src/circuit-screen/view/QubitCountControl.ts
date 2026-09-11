@@ -3,19 +3,20 @@
  *
  * The −/＋ stepper above the circuit: a "−" button, an "N qubits" readout, and a "+" button.
  * Editing routes through model.setQubitCount (clamped, undoable); the readout tracks
- * qubitCountProperty and the active locale.
+ * qubitCountProperty and the active locale. Shared by CircuitScreen and GateLabScreen — it
+ * only reads/writes CircuitEditingModel's base qubit-count API.
  */
 import { DerivedProperty } from "scenerystack/axon";
 import { StringUtils } from "scenerystack/phetcommon";
 import { Node, Rectangle, Text } from "scenerystack/scenery";
+import type { CircuitEditingModel } from "../../common/CircuitEditingModel.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import QubitSketchColors from "../../QubitSketchColors.js";
 import { QUBIT_COUNT_CONTROL } from "../../QubitSketchConstants.js";
 import { FONTS } from "../../QubitSketchFonts.js";
-import type { QubitSketchModel } from "../model/QubitSketchModel.js";
 
 export class QubitCountControl extends Node {
-  public constructor(model: QubitSketchModel) {
+  public constructor(model: CircuitEditingModel) {
     super();
 
     const { BUTTON_SIZE, BUTTON_RADIUS, READOUT_WIDTH, READOUT_HEIGHT, SPACING } = QUBIT_COUNT_CONTROL;
