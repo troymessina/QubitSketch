@@ -2,16 +2,21 @@
 
 [![CI](https://github.com/OpenLyceum/QubitSketch/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenLyceum/QubitSketch/actions/workflows/ci.yml)
 
-A two-screen quantum computing sim built with [SceneryStack](https://scenerystack.org/): a
-book-modeled **Gate Lab** for an introduction to single gates and superposition, and a full
-drag-and-drop **Circuit** builder with a live state simulator. Place gates on qubit wires and
-watch probabilities, amplitudes, Bloch spheres, and measurements update in real time.
+A three-screen quantum computing sim built with [SceneryStack](https://scenerystack.org/), modeled
+on Terry Rudolph's book *Q is for Quantum*: an **Intro** screen where a single ball is watched
+falling through a stack of gate boxes in real time, a **Gate Lab** for multi-qubit gates and an
+instant superposition readout, and a full drag-and-drop **Circuit** builder with a live state
+simulator. Place gates on qubit wires and watch probabilities, amplitudes, Bloch spheres, and
+measurements update in real time.
 
 ## Features
 
-- **Gate Lab** — modeled on Terry Rudolph's book *Q is for Quantum*: black/white balls (qubits)
-  pass through NOT/PETE (Hadamard)/control/swap boxes; superposition is shown as a "mist" of
-  surviving ball configurations and their sign; a Peek button samples one outcome
+- **Intro** — a single ball animates falling through a drag-and-droppable stack of NOT/PETE
+  (Hadamard) boxes, turning "misty" the instant it enters superposition; a mist panel and Peek
+  button below the stack show the final result
+- **Gate Lab** — modeled on the same book: black/white balls (qubits) pass through NOT/PETE
+  (Hadamard)/control/swap boxes; superposition is shown as a "mist" of surviving ball
+  configurations and their sign; a Peek button samples one outcome
 - **Circuit** — build circuits by dragging gates or click-to-place; undo/redo and shareable URL
   encoding
   - Standard gates (H, X, Y, Z, S, T, √X) plus parametrized Rx/Ry/Rz rotations

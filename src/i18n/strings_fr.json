@@ -1,6 +1,7 @@
 {
   "title": "QubitSketch",
   "screens": {
+    "intro": "Introduction",
     "gateLab": "Labo de portes",
     "circuit": "Circuit"
   },
@@ -117,6 +118,21 @@
         "interactionHint": "Cliquez sur une bille pour choisir sa couleur initiale, choisissez une case, placez-la sur la grille et observez la mise à jour de la brume."
       },
       "currentDetails": "Le laboratoire comporte {{qubits}} billes."
+    }
+  },
+  "intro": {
+    "toolDescriptions": {
+      "X": "NON — inverse la couleur de la bille (noir ↔ blanc)",
+      "H": "PETE — divise la bille en une brume de noir et de blanc"
+    },
+    "dropButton": "Lâcher",
+    "a11y": {
+      "screenSummary": {
+        "playArea": "La zone de jeu est une seule bille au-dessus d'une pile verticale de cases. Les cases sont NON et PETE (Hadamard). Appuyer sur Lâcher anime la chute de la bille à travers chaque case, la rendant brumeuse dès qu'elle entre en superposition ; un panneau de brume sous la pile montre le résultat final.",
+        "controlArea": "Les commandes choisissent une case, la font glisser sur la pile ou cliquent sur la pile pour placer la case choisie, cliquent sur la bille pour inverser sa couleur initiale, annulent et rétablissent, et appuient sur Lâcher pour animer la chute. Un bouton Tout réinitialiser ramène le laboratoire à son état initial.",
+        "interactionHint": "Faites glisser NON ou PETE sur la pile, puis appuyez sur Lâcher et observez la bille tomber."
+      },
+      "currentDetails": "La pile comporte {{count}} cases."
     }
   }
 }

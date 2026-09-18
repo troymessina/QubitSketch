@@ -1,6 +1,7 @@
 {
   "title": "QubitSketch",
   "screens": {
+    "intro": "Introducción",
     "gateLab": "Laboratorio de Puertas",
     "circuit": "Circuito"
   },
@@ -117,6 +118,21 @@
         "interactionHint": "Haz clic en una bola para elegir su color inicial, elige una caja, colócala en la cuadrícula y observa cómo se actualiza la niebla."
       },
       "currentDetails": "El laboratorio tiene {{qubits}} bolas."
+    }
+  },
+  "intro": {
+    "toolDescriptions": {
+      "X": "NOT — invierte el color de la bola (negro ↔ blanco)",
+      "H": "PETE — divide la bola en una niebla de negro y blanco"
+    },
+    "dropButton": "Soltar",
+    "a11y": {
+      "screenSummary": {
+        "playArea": "El área de juego es una sola bola sobre una pila vertical de cajas. Las cajas son NOT y PETE (Hadamard). Al pulsar Soltar, la bola cae animada a través de cada caja, volviéndose brumosa al entrar en superposición; un panel de niebla debajo de la pila muestra el resultado final.",
+        "controlArea": "Los controles eligen una caja, la arrastran a la pila o hacen clic en la pila para colocar la caja elegida, hacen clic en la bola para invertir su color inicial, deshacen y rehacen, y pulsan Soltar para animar la caída. Un botón Restablecer todo devuelve el laboratorio a su estado inicial.",
+        "interactionHint": "Arrastra NOT o PETE a la pila, luego pulsa Soltar y observa caer la bola."
+      },
+      "currentDetails": "La pila tiene {{count}} cajas."
     }
   }
 }

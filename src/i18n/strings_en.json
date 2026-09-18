@@ -1,6 +1,7 @@
 {
   "title": "QubitSketch",
   "screens": {
+    "intro": "Intro",
     "gateLab": "Gate Lab",
     "circuit": "Circuit"
   },
@@ -117,6 +118,21 @@
         "interactionHint": "Click a ball to choose its starting color, choose a box, then place it on the grid and watch the mist update."
       },
       "currentDetails": "The lab has {{qubits}} balls."
+    }
+  },
+  "intro": {
+    "toolDescriptions": {
+      "X": "NOT — flips the ball's color (black ↔ white)",
+      "H": "PETE — splits the ball into a mist of black and white"
+    },
+    "dropButton": "Drop",
+    "a11y": {
+      "screenSummary": {
+        "playArea": "The play area is a single ball above a vertical stack of boxes. Boxes are NOT and PETE (Hadamard). Pressing Drop animates the ball falling through each box in turn, turning misty when it enters superposition; a mist panel below the stack shows the final result.",
+        "controlArea": "The controls choose a box, drag it onto the stack or click the stack to place the selected box, click the ball to flip its starting color, undo and redo, and press Drop to animate the fall. A Reset All button returns the lab to its starting state.",
+        "interactionHint": "Drag NOT or PETE onto the stack, then press Drop and watch the ball fall through."
+      },
+      "currentDetails": "The stack has {{count}} boxes."
     }
   }
 }

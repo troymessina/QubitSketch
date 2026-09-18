@@ -4,14 +4,18 @@ Sim-specific context for AI assistants. General SceneryStack guidance: [OpenLyce
 
 ## Project
 
-Two-screen sim, both built on the same shared circuit-grid engine:
+Three-screen sim, all built on the same shared quantum engine, ordered from most to least
+literal to the book:
 
-1. **Gate Lab** (`src/gate-lab-screen/`) — an introductory companion modeled on Terry Rudolph's
-   book *Q is for Quantum*: black/white **balls** (qubits) pass through labeled **boxes**
-   (NOT/PETE/control/swap; PETE = Hadamard), and superposition is shown as a **"mist"** of
-   surviving ball configurations with a sign (relative phase) — real ±1 amplitudes only, no
-   complex numbers, matching the book. See doc/model.md.
-2. **Circuit** (`src/circuit-screen/`) — the full drag-and-drop **quantum circuit builder** with
+1. **Intro** (`src/intro-screen/`) — the most literal screen: a single ball animates falling
+   through a drag-and-droppable vertical stack of boxes (NOT/PETE), turning "misty" (a faded
+   double-ball look) the moment it enters superposition. Modeled directly on a VPython demo of
+   Rudolph's own book. Single-qubit only — real per-frame animation (`IntroModel.step`), unlike
+   every other model in this sim. See doc/model.md.
+2. **Gate Lab** (`src/gate-lab-screen/`) — the next step up: multi-qubit (≤ 3), instant (no
+   animation) "mist" display of surviving ball configurations with a sign (relative phase) —
+   still real ±1 amplitudes only, no complex numbers, matching the book. See doc/model.md.
+3. **Circuit** (`src/circuit-screen/`) — the full drag-and-drop **quantum circuit builder** with
    live CPU statevector simulation (≤ 5 qubits). Pedagogical reimplementation of
    [Quirk](https://github.com/Strilanc/Quirk)'s core (local checkout: `../Baseline/Qubit/Quirk`)
    — superposition, entanglement, and unitary gates (including complex phases) on a grid of
@@ -23,22 +27,33 @@ Physics for educators: `doc/model.md`. Architecture: `doc/implementation-notes.m
 
 | Area | Location |
 |---|---|
-| Screens | `src/circuit-screen/CircuitScreen.ts`, `src/gate-lab-screen/GateLabScreen.ts` |
-| Shared editing core | `src/common/CircuitEditingModel.ts` — grid editing, undo/redo, inspect, live statevector/probability/Bloch derived Properties, and the input-ball bitmask; both screens' models extend it (`QubitSketchModel`, `GateLabModel`) with only their qubit-count range and tool palette |
-| Shared engine | `circuit-screen/model/QuantumSimulator.ts` (pure engine), `GateType.ts`, `GateMatrices.ts`, `CircuitGrid.ts`, `ColumnRules.ts` — used by both screens |
-| Circuit-only model | `circuit-screen/model/CircuitSerializer.ts`, `CircuitUrlSync.ts`, `QasmSerializer.ts` (barrel over `QasmExport/Import/Mappings/Angle.ts`) — URL-sharing and QASM are CircuitScreen-only; Gate Lab has neither (teaching sandbox, not a shareable-circuit tool) |
+| Screens | `src/intro-screen/IntroScreen.ts`, `src/gate-lab-screen/GateLabScreen.ts`, `src/circuit-screen/CircuitScreen.ts` |
+| Shared editing core | `src/common/CircuitEditingModel.ts` — grid editing, undo/redo, inspect, live statevector/probability/Bloch derived Properties, and the input-ball bitmask; Circuit's and Gate Lab's models extend it (`QubitSketchModel`, `GateLabModel`) with only their qubit-count range and tool palette. `IntroModel` does **not** extend it (see Model below) |
+| Shared engine | `circuit-screen/model/QuantumSimulator.ts` (pure engine), `GateType.ts`, `GateMatrices.ts`, `CircuitGrid.ts`, `ColumnRules.ts` — used by all three screens |
+| Circuit-only model | `circuit-screen/model/CircuitSerializer.ts`, `CircuitUrlSync.ts`, `QasmSerializer.ts` (barrel over `QasmExport/Import/Mappings/Angle.ts`) — URL-sharing and QASM are CircuitScreen-only; Intro and Gate Lab have neither (teaching sandboxes, not shareable-circuit tools) |
 | Circuit view | `circuit-screen/view/CircuitScreenView.ts`, `CircuitCanvas.ts`, `GatePalettePanel.ts`, `BlochSpheresNode.ts`, `CircuitScreenSummaryContent.ts` |
 | Gate Lab view | `gate-lab-screen/view/GateLabScreenView.ts`, `GateLabCanvas.ts` (ball/box grid), `BoxPalettePanel.ts`, `MistCloudNode.ts` (the mist display + Peek), `GateLabScreenSummaryContent.ts` |
-| Shared view controls | `circuit-screen/view/QubitCountControl.ts`, `InspectControlNode.ts`, `undoRedoKeyboardShortcuts.ts` — reused by GateLabScreenView |
+| Intro view | `intro-screen/view/IntroScreenView.ts`, `BallDropCanvas.ts` (box stack + animated ball + drag-to-insert), `BoxNode.ts` (the literal box art), `IntroPalettePanel.ts`, `IntroScreenSummaryContent.ts`. Reuses Gate Lab's `MistCloudNode`/`MistState.computeMistRows` directly rather than forking them |
+| Shared view controls | `circuit-screen/view/QubitCountControl.ts`, `InspectControlNode.ts`, `undoRedoKeyboardShortcuts.ts` — reused by GateLabScreenView; `undoRedoKeyboardShortcuts.ts` also reused by IntroScreenView (its `UndoRedoTarget` interface is structural, so `IntroModel` satisfies it without extending anything) |
 | Constants / colors | `src/QubitSketchConstants.ts`, `QubitSketchColors.ts`, `src/i18n/StringManager.ts` |
 
 ## Model
 
-Both `QubitSketchModel` and `GateLabModel` `extends CircuitEditingModel implements TModel` (see
+`QubitSketchModel` and `GateLabModel` `extends CircuitEditingModel implements TModel` (see
 `src/common/CircuitEditingModel.ts` for the full shared API). Circuit grid `circuit[qubit][step]`
 holds `CircuitCell` gate placements; `QuantumSimulator.simulate` recomputes derived state. Gate
 Lab additionally drives `inputBitsProperty` (the starting computational-basis state — the book's
 "drop a black or white ball") via `toggleInputBit`; CircuitScreen never touches it, so it stays 0.
+
+`IntroModel` is a **standalone** `TModel` — deliberately not a `CircuitEditingModel` subclass,
+since that base is grid-shaped (qubit × step) with undo/redo over the whole grid, which doesn't
+fit an ordered, variable-length single-lane box stack. It still reuses the shared engine directly
+(builds a 1-row `Grid` via `CircuitGrid.emptyGrid`/`withCell`, then calls `simulate`) rather than
+any new physics, and has its own small undo/redo over just `{boxes, inputBall}`. It is also the
+only model in this sim with a real `step(dt)` — `fallProgressProperty` advances at a constant
+rate while `isDroppingProperty` is true, driving the falling-ball animation; every other screen's
+`step()` is a no-op (SceneryStack's `Sim` calls `screen.model.step(dt)` directly regardless of the
+view, so this Just Works without any view-level wiring — see `Sim.ts`'s `stepSimulationAction`).
 
 | Property | Type | Meaning |
 |---|---|---|
@@ -62,11 +77,12 @@ Lab additionally drives `inputBitsProperty` (the starting computational-basis st
 ## Accessibility
 
 Follows the shared [OpenLyceum accessibility convention](https://github.com/OpenLyceum/Baton/blob/main/ACCESSIBILITY.md).
-`CircuitScreenView`/`GateLabScreenView` each register their own `*ScreenSummaryContent` (live
-current-details: qubit/ball count) via the `screenSummaryContent` super-option, and order the PDOM
-through a wrapper `Node`. CircuitScreen's a11y strings live under the top-level `a11y` key
-(`StringManager.getA11yStrings()`); Gate Lab's live under `gateLab.a11y`
-(`StringManager.getGateLabStrings().a11y`), since they describe a different play area.
+`CircuitScreenView`/`GateLabScreenView`/`IntroScreenView` each register their own
+`*ScreenSummaryContent` (live current-details: qubit/ball/box count) via the
+`screenSummaryContent` super-option, and order the PDOM through a wrapper `Node`. CircuitScreen's
+a11y strings live under the top-level `a11y` key (`StringManager.getA11yStrings()`); Gate Lab's
+live under `gateLab.a11y` and Intro's under `intro.a11y` (`StringManager.getGateLabStrings().a11y`
+/ `getIntroStrings().a11y`), since each describes a different play area.
 
 ## Compliance carve-outs
 
@@ -104,6 +120,7 @@ Actual specs:
 - `tests/qubit-sketch-model.test.ts` — CircuitScreen placement guards (column shapes), undo/redo history
 - `tests/gate-lab-model.test.ts` — Gate Lab placement guards over its restricted tool set, the input-ball bitmask, undo/redo
 - `tests/mist-state.test.ts` — statevector → mist-row reduction (`computeMistRows`): superposition, the book's two-PETE-boxes collapse, entanglement, sign
+- `tests/intro-model.test.ts` — the ordered box stack (insert/remove/undo/redo, the `MAX_INTRO_BOXES` depth cap), the input ball, the fall animation state machine (`step(dt)` driving `fallProgressProperty`/`displayStateProperty`), and the same headline PETE-box physics cases exercised through `IntroModel`
 - `tests/column-rules.test.ts` — the shared legality predicate + all three writers; includes a 4000-edit editor fuzz asserting the invariant holds over the whole grid after every reachable edit
 - `tests/display-utils.test.ts` — amplitude/phase formatting (consistent U+2212 minus, no negative zero)
 - `tests/memory-leak.test.ts` — covers `GatePalettePanel.dispose()` and `BoxPalettePanel.dispose()` (palette drag previews / tooltips link global color Properties), plus bare-model collectibility for both screens
@@ -124,5 +141,17 @@ npm test
 
 - URL hash `#circuit=…` shares circuits; QASM dialog for export/import (teaching subset) — CircuitScreen only. Undo/redo (Ctrl+Z / Ctrl+Y) on both screens; inspect mode scrubs columns without changing the stored circuit.
 - **Adding a gate (CircuitScreen):** key in `GateType.ts` → matrix in `GateMatrices.ts` → color in `QubitSketchColors.ts` → maps in `GateNode.ts` → `ALL_TOOLS` in `GatePalettePanel.ts` → locale JSON + `StringManager.getToolDescriptions()`.
-- **Gate Lab's palette is intentionally fixed** to the book's vocabulary (`GATE_LAB_TOOL_VALUES` in `GateType.ts`: NOT/PETE/control/swap/eraser) — it is not meant to grow toward CircuitScreen's full gate set; adding a gate there would leave the real-±1 amplitude world the mist display assumes (see `MistState.ts`).
-- Non-goals: arithmetic/QFT/Grover gates; time-animated gates; mid-circuit collapsing measurement; one target gate per column when controls present; a Gate Lab screen covering the book's Part II (entanglement/nonlocality game) or Part III (foundations) content — Gate Lab currently covers Part I only; CSWAP QASM import (see the Simulation rules note above).
+- **Gate Lab's and Intro's palettes are intentionally fixed** to the book's vocabulary
+  (`GATE_LAB_TOOL_VALUES` in `GateType.ts`: NOT/PETE/control/swap/eraser; Intro: just NOT/PETE,
+  see `IntroBoxType` in `IntroModel.ts`) — neither is meant to grow toward CircuitScreen's full
+  gate set; adding a gate would leave the real-±1 amplitude world the mist display assumes (see
+  `MistState.ts`).
+- **Intro's stack depth is capped below the shared grid's `NUM_STEPS`** (`MAX_INTRO_BOXES = 5` in
+  `IntroModel.ts`, vs. `NUM_STEPS = 8`) — boxes are drawn big and literal in a single vertical
+  column, so 8 stacked would not fit this sim's fixed 1024×618 layout. Don't "fix" this by
+  reusing `NUM_STEPS` directly; recheck `BallDropCanvas`'s layout math if you ever do raise it.
+- Non-goals: arithmetic/QFT/Grover gates; time-animated gates (outside Intro's ball-drop
+  animation); mid-circuit collapsing measurement; one target gate per column when controls
+  present; an Intro/Gate Lab screen covering the book's Part II (entanglement/nonlocality game)
+  or Part III (foundations) content — both currently cover Part I only; CSWAP QASM import (see
+  the Simulation rules note above).

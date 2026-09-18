@@ -6,13 +6,17 @@ in terms appropriate for an educator. It is the companion to
 
 ## Overview
 
-QubitSketch has two screens sharing one circuit-grid engine:
+QubitSketch has three screens sharing one circuit-grid engine, ordered from most to least literal
+to Terry Rudolph's book *Q is for Quantum* (see References):
 
-- **Gate Lab** — an introductory companion modeled on Terry Rudolph's book *Q is for Quantum*
-  (see References). Qubits are drawn as black/white **balls**; gates are labeled **boxes** (NOT,
-  PETE = Hadamard, control, swap); superposition is a **"mist"** of surviving ball configurations,
-  each carrying a **sign** (relative phase). Real ±1 amplitudes only — no complex numbers — by
-  design, matching the book. See "Gate Lab model" below.
+- **Intro** — the most literal screen, modeled directly on a VPython demo from the book: a single
+  ball animates falling through a drag-and-droppable vertical stack of **boxes** (NOT, PETE =
+  Hadamard), turning **"misty"** (a faded double-ball look) the instant it enters superposition.
+  Single-qubit only. See "Intro model" below.
+- **Gate Lab** — the next step up: multi-qubit (≤ 3), the same ball/box picture but with an
+  instant (no animation) **"mist"** display of every surviving ball configuration, each carrying a
+  **sign** (relative phase). Real ±1 amplitudes only — no complex numbers — by design, matching
+  the book. See "Gate Lab model" below.
 - **Circuit** — a full **quantum-circuit builder and statevector simulator**. Students place gates
   on a grid of qubit wires and watch the **statevector**, **measurement probabilities**,
   **Bloch-sphere reduced states**, and (optionally) a sampled **measurement histogram** update
@@ -20,8 +24,9 @@ QubitSketch has two screens sharing one circuit-grid engine:
   entanglement, interference, and how unitary gates (including complex phases) transform a
   multi-qubit register.
 
-The rest of this document describes the Circuit screen's model in full; the "Gate Lab model"
-section at the end describes Gate Lab's restricted, book-faithful subset of the same engine.
+The rest of this document describes the Circuit screen's model in full; the "Gate Lab model" and
+"Intro model" sections at the end describe each screen's restricted, book-faithful subset of the
+same engine.
 
 The key ideas a student should take away:
 
@@ -99,6 +104,38 @@ circuit or undo history.
   wire is shown again), and a shared `#circuit=` link or QASM program describing an unsupported
   column is rejected rather than loaded. So a gate you can see is always a gate that acts.
 - OpenQASM import/export covers a **teaching subset** (see QASM dialog); not full OpenQASM 3.
+
+## Intro model
+
+Intro reuses the exact same engine as Gate Lab and Circuit — a single-row `CircuitGrid.Grid` fed
+to `QuantumSimulator.simulate` — restricted to one qubit and two boxes, plus a real-time falling
+animation layered on top. No new physics: the animation is a presentation-layer read of the same
+statevector math used everywhere else in this sim.
+
+- **One ball, one column.** A vertical, ordered stack of boxes (max `MAX_INTRO_BOXES = 5`, well
+  below the shared grid's `NUM_STEPS = 8` — see doc/implementation-notes.md for why). Only NOT
+  and PETE are exposed; there is no control/swap here (that needs a second wire — see Gate Lab).
+- **The fall.** `IntroModel.fallProgressProperty` is a continuous 0..boxes.length value advanced
+  by `step(dt)` at a constant rate while `isDroppingProperty` is true (started by the Drop
+  button). The *displayed* state while falling — `displayStateProperty` — is
+  `simulate(circuit, 1, Math.round(fallProgress), inputBall)`: rounding (not flooring) means a
+  box's effect appears once the ball has visually reached that box's midpoint, matching the
+  VPython demo this screen is modeled on, which updates the ball's state there too.
+- **Misty ball.** At any point during the fall, the view reduces `displayStateProperty` via
+  `MistState.computeMistRows` (the same function Gate Lab's mist panel uses): a single surviving
+  row renders as one solid ball; two rows render as a faded, overlapping black+white pair — the
+  animated version of Gate Lab's mist cloud, one ball at a time instead of a list.
+  Two-stacked-PETE-boxes collapsing the ball back to a solid, deterministic color (the same
+  headline "surprise" as Gate Lab's) is directly visible mid-animation this way, not just in a
+  final readout.
+- **Final readout.** `stateVectorProperty`/`probabilitiesProperty` are always the *full* circuit
+  result (every placed box applied), independent of `fallProgress` — they feed a `MistCloudNode`
+  (Gate Lab's, reused verbatim) below the stack, so the accurate answer is visible even before
+  pressing Drop; the animation is the pedagogical spectacle, not the source of truth.
+- **Editing.** Placing/removing a box or toggling the input ball is refused while dropping, and
+  resets `fallProgress` to 0 otherwise (mirrors how editing the circuit clears Gate Lab's inspect
+  step) — the ball always pops back to the top, ready to redrop, whenever the setup changes.
+- **Scope.** Like Gate Lab, Intro covers only the book's Part I.
 
 ## Gate Lab model
 

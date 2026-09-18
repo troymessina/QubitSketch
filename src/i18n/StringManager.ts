@@ -65,10 +65,12 @@ export class StringManager {
   }
 
   public getScreenNames(): {
+    readonly introStringProperty: ReadOnlyProperty<string>;
     readonly gateLabStringProperty: ReadOnlyProperty<string>;
     readonly circuitStringProperty: ReadOnlyProperty<string>;
   } {
     return {
+      introStringProperty: stringProperties.screens.introStringProperty,
       gateLabStringProperty: stringProperties.screens.gateLabStringProperty,
       circuitStringProperty: stringProperties.screens.circuitStringProperty,
     };
@@ -246,6 +248,29 @@ export class StringManager {
         resetStringProperty: g.mist.resetStringProperty,
       },
       a11y: g.a11y,
+    };
+  }
+
+  /**
+   * Strings for IntroScreen: one-line descriptions for its two-box palette, the Drop
+   * button label, and its accessibility strings.
+   */
+  public getIntroStrings(): {
+    readonly toolDescriptions: {
+      readonly X: ReadOnlyProperty<string>;
+      readonly H: ReadOnlyProperty<string>;
+    };
+    readonly dropButtonStringProperty: ReadOnlyProperty<string>;
+    readonly a11y: typeof stringProperties.intro.a11y;
+  } {
+    const i = stringProperties.intro;
+    return {
+      toolDescriptions: {
+        X: i.toolDescriptions.XStringProperty,
+        H: i.toolDescriptions.HStringProperty,
+      },
+      dropButtonStringProperty: i.dropButtonStringProperty,
+      a11y: i.a11y,
     };
   }
 }
