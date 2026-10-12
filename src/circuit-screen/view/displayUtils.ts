@@ -5,11 +5,9 @@
  */
 import type { Complex } from "scenerystack/dot";
 import { toFixed } from "scenerystack/dot";
-import { Color } from "scenerystack/scenery";
+import type { Color } from "scenerystack/scenery";
+import { NEUTRAL_PHASE_COLOR } from "../../QubitSketchColors.js";
 import { twilightColor } from "./twilightColormap.js";
-
-/** Color used when a phase is undefined (amplitude ≈ 0). */
-const NEUTRAL_PHASE_COLOR = new Color(120, 120, 120);
 
 /**
  * Magnitude² below which an amplitude is treated as zero: its phase is undefined and it

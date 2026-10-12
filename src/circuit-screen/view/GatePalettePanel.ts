@@ -267,7 +267,7 @@ function makeToolNode(tool: SelectedTool, size: number): Node {
       }),
     );
     node.addChild(
-      new Text("✕", {
+      new Text(StringManager.getInstance().getGlyphStrings().removeStringProperty, {
         font: scaledFont(Math.floor(size * 0.44), { bold: true }),
         fill: QubitSketchColors.onGateTextColorProperty,
         centerX: size / 2,

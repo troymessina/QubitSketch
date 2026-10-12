@@ -15,6 +15,7 @@
  * distributions.
  */
 import { Property, type ReadOnlyProperty } from "scenerystack/axon";
+import { dotRandom } from "scenerystack/dot";
 import { Node, Rectangle, Text } from "scenerystack/scenery";
 import { FlatAppearanceStrategy, RectangularPushButton } from "scenerystack/sun";
 import { StringManager } from "../../i18n/StringManager.js";
@@ -28,7 +29,7 @@ const COUNT_WIDTH = 44;
 
 /** Samples an index from a probability distribution via cumulative sum. */
 function sampleOutcome(probabilities: number[]): number {
-  const r = Math.random();
+  const r = dotRandom.nextDouble();
   let acc = 0;
   for (let i = 0; i < probabilities.length; i++) {
     acc += probabilities[i] ?? 0;

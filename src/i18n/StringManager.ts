@@ -12,11 +12,17 @@ import stringsEs from "./strings_es.json";
 import stringsFr from "./strings_fr.json";
 
 // ── Compile-time key-parity check ─────────────────────────────────────────────
-// satisfies errors immediately if either locale file is missing keys from the other.
+// English is the canonical shape; every other locale must match it exactly.
+// TypeScript errors here if any locale file is missing (or adds) a key relative to
+// English. Add one `satisfies` line per new locale so the check stays exhaustive.
+// biome-ignore lint/complexity/noVoid: intentional compile-time type assertion
+void (stringsFr satisfies typeof stringsEn);
 // biome-ignore lint/complexity/noVoid: intentional compile-time type assertion
 void (stringsEn satisfies typeof stringsFr);
 // biome-ignore lint/complexity/noVoid: intentional compile-time type assertion
-void (stringsFr satisfies typeof stringsEn);
+void (stringsEs satisfies typeof stringsEn);
+// biome-ignore lint/complexity/noVoid: intentional compile-time type assertion
+void (stringsEn satisfies typeof stringsEs);
 
 const stringProperties = LocalizedString.getNestedStringProperties({
   en: stringsEn,
@@ -47,6 +53,15 @@ export class StringManager {
    */
   public getA11yStrings() {
     return stringProperties.a11y;
+  }
+
+  /** Language-independent "q{{index}}" caption for a Bloch sphere. */
+  public getQubitLabelStrings(): {
+    readonly indexPatternStringProperty: ReadOnlyProperty<string>;
+  } {
+    return {
+      indexPatternStringProperty: stringProperties.qubits.indexPatternStringProperty,
+    };
   }
 
   /**
@@ -133,6 +148,19 @@ export class StringManager {
     return {
       liveStringProperty: stringProperties.inspect.liveStringProperty,
     };
+  }
+
+  /** Icon glyphs drawn as text on buttons. */
+  public getGlyphStrings(): {
+    readonly undoStringProperty: ReadOnlyProperty<string>;
+    readonly redoStringProperty: ReadOnlyProperty<string>;
+    readonly decrementStringProperty: ReadOnlyProperty<string>;
+    readonly incrementStringProperty: ReadOnlyProperty<string>;
+    readonly previousStringProperty: ReadOnlyProperty<string>;
+    readonly nextStringProperty: ReadOnlyProperty<string>;
+    readonly removeStringProperty: ReadOnlyProperty<string>;
+  } {
+    return stringProperties.glyphs;
   }
 
   /** Labels for the OpenQASM export/import dialog. */

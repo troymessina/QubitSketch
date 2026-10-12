@@ -291,6 +291,7 @@ export class CircuitEditingModel implements TModel {
     if (current.kind !== "paramGate" || current.theta === theta) {
       return;
     }
+    this._inspectStepProperty.value = null;
     // Coalesce a continuous slider drag on one cell into a single undo step.
     this.pushHistory(`theta:${qubitIndex}:${stepIndex}`);
     this.setCell(qubitIndex, stepIndex, { kind: "paramGate", axis: current.axis, theta });
@@ -384,6 +385,7 @@ export class CircuitEditingModel implements TModel {
 
   private applySnapshot(snap: EditorSnapshot): void {
     this.applyingHistory = true;
+    this._inspectStepProperty.value = null;
     this.selectedCellProperty.value = null;
     this._qubitCountProperty.value = snap.qubitCount;
     this._circuitProperty.set(snap.circuit);

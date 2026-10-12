@@ -5,6 +5,7 @@
  * here — QubitSketch's model is discrete (circuit cells), so this file holds
  * only view spacing, sizes, and corner radii.
  */
+import QubitSketchNamespace from "./QubitSketchNamespace.js";
 
 /** Corner radius shared by control panels and dialogs (px). */
 export const PANEL_CORNER_RADIUS = 5;
@@ -20,3 +21,9 @@ export const QUBIT_COUNT_CONTROL = {
   READOUT_HEIGHT: 28, // height of the readout box (px)
   SPACING: 6, // gap between button, readout, and button (px)
 } as const;
+
+QubitSketchNamespace.register("QubitSketchConstants", {
+  PANEL_CORNER_RADIUS,
+  SCREEN_VIEW_MARGIN,
+  QUBIT_COUNT_CONTROL,
+});

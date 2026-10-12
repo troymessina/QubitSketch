@@ -13,7 +13,7 @@
  * the center (shown as a dot), a direct cue that "this qubit alone no longer has
  * a definite state."
  */
-import { Multilink, NumberProperty, type ReadOnlyProperty } from "scenerystack/axon";
+import { Multilink, NumberProperty, PatternStringProperty, type ReadOnlyProperty } from "scenerystack/axon";
 import type { Vector3 } from "scenerystack/dot";
 import { Circle, Node, Rectangle, RichDragListener, Text } from "scenerystack/scenery";
 import { StringManager } from "../../i18n/StringManager.js";
@@ -49,7 +49,9 @@ export class BlochSpheresNode extends Node {
   private readonly bigSphere: BlochSphereNode;
   private readonly bigLabel: Text;
   private readonly thumbContainer: Node;
+  private readonly qubitIndexPatternProperty: ReadOnlyProperty<string>;
   private thumbs: Array<{ sphere: BlochSphereNode; ring: Rectangle }> = [];
+  private thumbLabelProperties: Array<{ dispose: () => void }> = [];
 
   public constructor(
     blochVectorsProperty: ReadOnlyProperty<Vector3[]>,
@@ -59,6 +61,7 @@ export class BlochSpheresNode extends Node {
     super();
     this.blochVectorsProperty = blochVectorsProperty;
     this.availableWidth = width;
+    this.qubitIndexPatternProperty = StringManager.getInstance().getQubitLabelStrings().indexPatternStringProperty;
 
     // ── Large focused sphere ──────────────────────────────────────────────────
     this.bigSphere = new BlochSphereNode({ radius: BIG_RADIUS, detailed: true });
@@ -103,8 +106,12 @@ export class BlochSpheresNode extends Node {
     );
     this.addChild(dragArea);
 
-    // "qN" caption naming the focused qubit.
-    this.bigLabel = new Text("q0", {
+    // "qN" caption naming the focused qubit. The index is a pattern value so the
+    // label is not built by concatenating a localized string.
+    const focusedLabelProperty = new PatternStringProperty(this.qubitIndexPatternProperty, {
+      index: this.selectedQubitProperty,
+    });
+    this.bigLabel = new Text(focusedLabelProperty, {
       font: FONTS.blochLabel,
       fill: QubitSketchColors.textColorProperty,
       centerX: width / 2,
@@ -132,6 +139,10 @@ export class BlochSpheresNode extends Node {
   /** (Re)creates one thumbnail per qubit, centred in a row, and re-renders. */
   private rebuildThumbnails(count: number): void {
     this.thumbContainer.removeAllChildren();
+    for (const labelProperty of this.thumbLabelProperties) {
+      labelProperty.dispose();
+    }
+    this.thumbLabelProperties = [];
     this.thumbs = [];
 
     // Keep the focus in range when the count shrinks.
@@ -158,7 +169,9 @@ export class BlochSpheresNode extends Node {
         visible: false,
         pickable: false,
       });
-      const label = new Text(`q${q}`, {
+      const labelProperty = new PatternStringProperty(this.qubitIndexPatternProperty, { index: q });
+      this.thumbLabelProperties.push(labelProperty);
+      const label = new Text(labelProperty, {
         font: FONTS.monoTick,
         fill: QubitSketchColors.textColorProperty,
         centerX: cx,
@@ -188,7 +201,6 @@ export class BlochSpheresNode extends Node {
     const selected = this.selectedQubitProperty.value;
 
     this.bigSphere.render(vectors[selected] ?? null, azimuth, elevation);
-    this.bigLabel.string = `q${selected}`;
     this.bigLabel.centerX = this.availableWidth / 2;
 
     for (const [q, { sphere, ring }] of this.thumbs.entries()) {

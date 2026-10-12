@@ -1,6 +1,6 @@
-# CLAUDE.md — QubitSketch
+# AGENTS.md — QubitSketch
 
-Sim-specific context for AI assistants. General SceneryStack guidance: [OpenLyceum/.github/CLAUDE.md](https://github.com/OpenLyceum/.github/blob/main/CLAUDE.md).
+Sim-specific context for AI assistants. General SceneryStack guidance: [OpenLyceum/.github/AGENTS.md](https://github.com/OpenLyceum/.github/blob/main/AGENTS.md).
 
 ## Project
 
@@ -102,7 +102,6 @@ open PRs that fight the overrides. Revisit when SceneryStack drops or re-pins th
 | `three` | `~0.125.2` | SceneryStack declares `^0.104.0`. Floor is 0.125.0 for GHSA-fq6p-x6j3-cmmq (ReDoS). Staying on the 0.125 line avoids a larger API jump; **0.125.x still has open CVEs** (e.g. XSS GHSA-7vvq-7r29-5vg3, fixed only in ≥0.137.0). Remove this override if/when SceneryStack stops depending on `three` or pins a patched line itself. LightPropagation keeps a higher `three` pin — do not force 0.125 there. |
 | `brace-expansion` | `~5.0.9` | Transitive via `vite-plugin-pwa` / Workbox. Keep ≥5.0.12 for the latest audit findings (GHSA-q2hr-2g5m-vwhr CPU DoS, GHSA-qhr7-859c-m2p7 and GHSA-6j4f-fj2g-mc7p stack-exhaustion DoS); originally pinned for GHSA-mh99-v99m-4gvg / GHSA-rgw5-rvv9-x895. |
 | `source-map-js` | `~1.2.2` | Transitive via `css-tree`/postcss. Floor 1.2.2 for GHSA-68fv-2mgg-jv7q (event-loop DoS via indexed source-map section offsets). |
-| `undici` | `~8.11.2` | Transitive via `jsdom`. Floor 8.10.2 clears a batch of DoS/response-splitting/TLS-bypass advisories (e.g. GHSA-3wwx-pv8p-q78v, GHSA-pmjh-fq2x-6v4x, GHSA-r53p-7pc4-xj5r, GHSA-w293-vg96-wgc3); pinned to the latest 8.x so it stays within jsdom's expected major. |
 | `fast-uri` | `~3.1.8` | Transitive via `vite-plugin-pwa` → Workbox → `ajv`. Floor 3.1.8 for GHSA-hrr3-gc8f-f4qj (inconsistent host case normalization via percent-encoded octets); stays on the 3.x line ajv expects. |
 
 ## Testing
@@ -138,7 +137,7 @@ npm run lint && npm run check && npm run build
 npm test
 ```
 
-`npm run release` intentionally skips `npm test` in some sims — append `&& npm test` before the version bump so a release cannot ship a failing suite.
+`npm run release` runs `npm test` before the version bump, and `src/init.ts` reads `version` from `package.json`, so the About dialog always matches the release.
 
 ## Development notes
 

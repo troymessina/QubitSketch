@@ -142,3 +142,28 @@ describe("undo/redo history", () => {
     expect(cellAt(model, 0, 0).kind).toBe("empty");
   });
 });
+
+describe("editing during inspection", () => {
+  it("shows the live state after an angle edit", () => {
+    const model = new QubitSketchModel();
+    place(model, "Rx", 0, 0);
+    model.setInspectStep(0);
+    model.setCellTheta(0, 0, Math.PI);
+    expect(model.inspectStepProperty.value).toBeNull();
+    expect(model.probabilitiesProperty.value[1]).toBeCloseTo(1);
+  });
+
+  it("shows restored states after undo and redo", () => {
+    const model = new QubitSketchModel();
+    place(model, "X", 0, 0);
+    place(model, "H", 0, 1);
+    model.setInspectStep(0);
+    model.undo();
+    expect(model.inspectStepProperty.value).toBeNull();
+    expect(model.probabilitiesProperty.value[1]).toBeCloseTo(1);
+    model.setInspectStep(0);
+    model.redo();
+    expect(model.inspectStepProperty.value).toBeNull();
+    expect(model.probabilitiesProperty.value[1]).toBeCloseTo(0.5);
+  });
+});

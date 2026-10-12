@@ -1,9 +1,9 @@
 /**
  * QubitSketchPreferencesModel.ts
  *
- * Sim-specific preferences (Preferences → Simulation) for QubitSketch. Each
- * preference Property takes its initial value from the corresponding query
- * parameter in qubitSketchQueryParameters.
+ * Model for the simulation-specific preferences shown in Preferences →
+ * Simulation. Each preference Property takes its initial value from the
+ * corresponding query parameter in qubitSketchQueryParameters.
  */
 
 import { NumberProperty } from "scenerystack/axon";

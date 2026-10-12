@@ -16,8 +16,10 @@
  *   - SLOT_GAP     — gap between consecutive cells
  *   - WIRE_EXTEND  — how far the wire extends past the last slot
  */
+import { PatternStringProperty } from "scenerystack/axon";
 import type { Vector2 } from "scenerystack/dot";
 import { Circle, Line, Node, Rectangle, Text } from "scenerystack/scenery";
+import { StringManager } from "../../i18n/StringManager.js";
 import QubitSketchColors from "../../QubitSketchColors.js";
 import { FONTS } from "../../QubitSketchFonts.js";
 import type { Grid } from "../model/CircuitGrid.js";
@@ -98,13 +100,18 @@ export class CircuitCanvas extends Node {
       this.qubitRows.push(rowNode);
 
       // Qubit label
-      const label = new Text(`q${q}`, {
-        font: FONTS.qubitLabel,
-        fill: QubitSketchColors.textColorProperty,
-        right: LABEL_WIDTH - 6,
-        centerY: wireCenterY,
-        pickable: false,
-      });
+      const label = new Text(
+        new PatternStringProperty(StringManager.getInstance().getQubitLabelStrings().indexPatternStringProperty, {
+          index: q,
+        }),
+        {
+          font: FONTS.qubitLabel,
+          fill: QubitSketchColors.textColorProperty,
+          right: LABEL_WIDTH - 6,
+          centerY: wireCenterY,
+          pickable: false,
+        },
+      );
       rowNode.addChild(label);
 
       // Horizontal wire spanning all slots

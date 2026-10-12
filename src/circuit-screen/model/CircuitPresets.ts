@@ -4,7 +4,7 @@
  * A curated set of named example circuits for the "Example Circuits" dropdown. Each preset is
  * built only from supported gates and fits inside MAX_QUBITS × NUM_STEPS, so it round-trips
  * through `QubitSketchModel.loadCircuit`. Algorithm demos use teaching-scale instances and the
- * deferred-measurement form (this tool has no mid-circuit measurement) — see CLAUDE.md scope.
+ * deferred-measurement form (this tool has no mid-circuit measurement) — see AGENTS.md scope.
  *
  * Endianness (per GateType.ts): qubit 0 is the LEAST-significant bit; a controlled gate is a
  * `control`/`antiControl` cell sharing a column with a `controlledTarget`, and two `swap` cells

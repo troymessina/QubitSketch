@@ -4,8 +4,11 @@
  * Defines all dynamic colors for the simulation using ProfileColorProperty.
  * Each color has a "default" (dark) and "projector" (light) profile.
  */
-import { ProfileColorProperty } from "scenerystack/scenery";
+import { Color, ProfileColorProperty } from "scenerystack/scenery";
 import QubitSketchNamespace from "./QubitSketchNamespace.js";
+
+/** Phase swatch when an amplitude is ~0 and its phase is undefined. */
+export const NEUTRAL_PHASE_COLOR = new Color(120, 120, 120);
 
 const QubitSketchColors = {
   backgroundColorProperty: new ProfileColorProperty(QubitSketchNamespace, "background", {

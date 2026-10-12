@@ -43,7 +43,10 @@ export class InspectControlNode extends HBox {
 
     const prevButton = new RectangularPushButton({
       ...buttonAppearance,
-      content: new Text("◀", { font: FONTS.transportGlyph, fill: QubitSketchColors.textColorProperty }),
+      content: new Text(StringManager.getInstance().getGlyphStrings().previousStringProperty, {
+        font: FONTS.transportGlyph,
+        fill: QubitSketchColors.textColorProperty,
+      }),
       listener: () => {
         const k = shownColumn();
         if (k > 0) {
@@ -59,7 +62,10 @@ export class InspectControlNode extends HBox {
 
     const nextButton = new RectangularPushButton({
       ...buttonAppearance,
-      content: new Text("▶", { font: FONTS.transportGlyph, fill: QubitSketchColors.textColorProperty }),
+      content: new Text(StringManager.getInstance().getGlyphStrings().nextStringProperty, {
+        font: FONTS.transportGlyph,
+        fill: QubitSketchColors.textColorProperty,
+      }),
       listener: () => {
         const next = shownColumn() + 1;
         // Stepping past the last column returns to the live (final) state.

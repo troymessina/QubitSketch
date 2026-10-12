@@ -1,6 +1,6 @@
 {
   "extraKnownMarketplaces": {
-    "openphysics": {
+    "baton": {
       "source": {
         "source": "github",
         "repo": "OpenLyceum/Baton"
@@ -8,6 +8,6 @@
     }
   },
   "enabledPlugins": {
-    "scenerystack@openphysics": true
+    "scenerystack@baton": true
   }
 }

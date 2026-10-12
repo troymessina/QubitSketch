@@ -1,5 +1,5 @@
 {
-  "title": "QubitSketch",
+  "title": "Qubit Sketch",
   "screens": {
     "intro": "Introducción",
     "gateLab": "Laboratorio de Puertas",
@@ -8,6 +8,9 @@
   "qubitSelector": {
     "qubitCountSingularPattern": "{{count}} cúbit",
     "qubitCountPluralPattern": "{{count}} cúbits"
+  },
+  "qubits": {
+    "indexPattern": "q{{index}}"
   },
   "displays": {
     "probabilities": "Probabilidades",
@@ -134,5 +137,14 @@
       },
       "currentDetails": "La pila tiene {{count}} cajas."
     }
+  },
+  "glyphs": {
+    "undo": "↶",
+    "redo": "↷",
+    "decrement": "−",
+    "increment": "+",
+    "previous": "◀",
+    "next": "▶",
+    "remove": "✕"
   }
 }

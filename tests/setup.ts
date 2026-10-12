@@ -1,27 +1,27 @@
 /**
  * Vitest setup file — runs before every test file.
  *
- * SceneryStack (via paper.js) requires a Canvas 2D context at import time.
- * happy-dom's canvas stub doesn't provide one, so we patch getContext()
- * to return a minimal mock before any scenerystack code loads.
+ * SceneryStack requires a Canvas 2D context and an AudioContext at import time.
+ * happy-dom does not provide working versions, so we patch in minimal mocks
+ * before any scenerystack code loads, then call init() once for the suite.
+ *
+ * Template-owned: identical across the fleet except the `name` passed to init()
+ * (Baton check-template-drift substitutes it). Extend mocks in the template, or
+ * record a sim-specific variant under AGENTS.md → "Compliance carve-outs".
  */
 
-// ── Canvas 2D mock ──────────────────────────────────────────────────────────
-// paper.js only needs basic CanvasRenderingContext2D methods during init.
-// We provide a no-op stub that satisfies the property reads and draw calls.
-
+// ── shared no-op helpers ─────────────────────────────────────────────────────
 const noop: () => void = () => {
   /* no-op */
 };
 const noopReturn: (val: unknown) => () => unknown = (val: unknown) => (): unknown => val;
 
+// ── Canvas 2D mock ───────────────────────────────────────────────────────────
 function createMockContext2D(): CanvasRenderingContext2D {
   const ctx: Record<string, unknown> = {
-    // State
     canvas: { width: 1, height: 1 },
     save: noop,
     restore: noop,
-    // Transform
     scale: noop,
     rotate: noop,
     translate: noop,
@@ -29,10 +29,8 @@ function createMockContext2D(): CanvasRenderingContext2D {
     setTransform: noop,
     getTransform: noopReturn({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 }),
     resetTransform: noop,
-    // Compositing
     globalAlpha: 1,
     globalCompositeOperation: "source-over",
-    // Styles
     fillStyle: "#000",
     strokeStyle: "#000",
     lineWidth: 1,
@@ -49,7 +47,6 @@ function createMockContext2D(): CanvasRenderingContext2D {
     shadowOffsetX: 0,
     shadowOffsetY: 0,
     imageSmoothingEnabled: true,
-    // Drawing
     clearRect: noop,
     fillRect: noop,
     strokeRect: noop,
@@ -66,7 +63,6 @@ function createMockContext2D(): CanvasRenderingContext2D {
       emHeightAscent: 0,
       emHeightDescent: 0,
     }),
-    // Path
     beginPath: noop,
     closePath: noop,
     moveTo: noop,
@@ -82,10 +78,8 @@ function createMockContext2D(): CanvasRenderingContext2D {
     clip: noop,
     isPointInPath: noopReturn(false),
     isPointInStroke: noopReturn(false),
-    // Line dash
     getLineDash: noopReturn([]),
     setLineDash: noop,
-    // Image data
     createLinearGradient: () => ({ addColorStop: noop }),
     createRadialGradient: () => ({ addColorStop: noop }),
     createPattern: noopReturn(null),
@@ -101,21 +95,17 @@ function createMockContext2D(): CanvasRenderingContext2D {
   return ctx as unknown as CanvasRenderingContext2D;
 }
 
-// ── Web Audio mock ──────────────────────────────────────────────────────────
-// SceneryStack's tambo package decodes audio at import time.
-// happy-dom doesn't provide AudioContext, so we stub it.
-
+// ── Web Audio mock ───────────────────────────────────────────────────────────
 class MockAudioContext {
   readonly sampleRate = 44100;
-  readonly state = "running" as AudioContextState;
+  readonly state: AudioContextState = "running";
   readonly destination = {} as AudioDestinationNode;
   createGain(): GainNode {
-    const node = {
+    return {
       gain: { value: 1, setValueAtTime: noop, linearRampToValueAtTime: noop },
       connect: noop,
       disconnect: noop,
-    };
-    return node as unknown as GainNode;
+    } as unknown as GainNode;
   }
   createBufferSource(): AudioBufferSourceNode {
     return {
@@ -152,22 +142,50 @@ class MockAudioContext {
 (globalThis as Record<string, unknown>)["AudioContext"] = MockAudioContext;
 (globalThis as Record<string, unknown>)["webkitAudioContext"] = MockAudioContext;
 
-// ── Canvas 2D mock (patch before any scenerystack import) ───────────────────
-const origGetContext: typeof HTMLCanvasElement.prototype.getContext = HTMLCanvasElement.prototype.getContext;
+// ── Web Worker mock ──────────────────────────────────────────────────────────
+// happy-dom has no Worker. Models that construct one as a field initializer
+// (e.g. an OpenCV or physics worker) still need the constructor to exist.
+// Messages are swallowed: a real worker cannot run under happy-dom anyway.
+class MockWorker {
+  onmessage: ((event: MessageEvent) => void) | null = null;
+  onerror: ((event: ErrorEvent) => void) | null = null;
+  postMessage: () => void = noop;
+  terminate: () => void = noop;
+  addEventListener: () => void = noop;
+  removeEventListener: () => void = noop;
+  dispatchEvent: () => boolean = () => false;
+}
+if (typeof globalThis.Worker === "undefined") {
+  (globalThis as Record<string, unknown>)["Worker"] = MockWorker;
+}
+
+// ── patch getContext("2d") before any scenerystack import ────────────────────
+// Also pins getContext("webgpu") to null: happy-dom has no WebGPU, so code with a
+// WebGPU path exercises its unsupported branch deterministically.
+//
+// `origGetContext` is narrowed to a single loose signature before delegating —
+// its real type is a large overload union (widened further by @webgpu/types),
+// and a spread argument cannot be applied to an overload union.
+type LooseGetContext = (this: HTMLCanvasElement, contextId: string, ...args: unknown[]) => unknown;
+const origGetContext = HTMLCanvasElement.prototype.getContext as unknown as LooseGetContext;
 HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, contextId: string, ...args: unknown[]) {
   if (contextId === "2d") {
     const ctx = createMockContext2D();
     (ctx as unknown as Record<string, unknown>)["canvas"] = this;
-    return ctx as unknown as ReturnType<typeof origGetContext>;
+    return ctx;
   }
-  return origGetContext.call(this, contextId, ...args) as ReturnType<typeof origGetContext>;
-} as typeof origGetContext;
+  if (contextId === "webgpu") {
+    return null;
+  }
+  return origGetContext.call(this, contextId, ...args);
+} as typeof HTMLCanvasElement.prototype.getContext;
 
-// ── SceneryStack init ───────────────────────────────────────────────────────
+// ── SceneryStack init ────────────────────────────────────────────────────────
 import { init, madeWithSceneryStackSplashDataURI } from "scenerystack/init";
 
 init({
-  name: "qubitSketch",
+  // Must match the package.json "name" (and the name in src/init.ts).
+  name: "qubit-sketch",
   version: "1.0.0-test",
   brand: "made-with-scenerystack",
   locale: "en",

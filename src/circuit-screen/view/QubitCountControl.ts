@@ -29,7 +29,7 @@ export class QubitCountControl extends Node {
       cornerRadius: BUTTON_RADIUS,
       cursor: "pointer",
     });
-    const minusLabel = new Text("−", {
+    const minusLabel = new Text(StringManager.getInstance().getGlyphStrings().decrementStringProperty, {
       font: FONTS.stepperButton,
       fill: QubitSketchColors.textColorProperty,
       centerX: BUTTON_SIZE / 2,
@@ -80,7 +80,7 @@ export class QubitCountControl extends Node {
       cornerRadius: BUTTON_RADIUS,
       cursor: "pointer",
     });
-    const plusLabel = new Text("+", {
+    const plusLabel = new Text(StringManager.getInstance().getGlyphStrings().incrementStringProperty, {
       font: FONTS.stepperButton,
       fill: QubitSketchColors.textColorProperty,
       centerX: plusX + BUTTON_SIZE / 2,

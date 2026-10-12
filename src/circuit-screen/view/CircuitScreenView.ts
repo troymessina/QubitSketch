@@ -111,14 +111,20 @@ export class CircuitScreenView extends ScreenView {
     const a11yControls = StringManager.getInstance().getA11yStrings().controls;
     const undoButton = new RectangularPushButton({
       ...buttonAppearance,
-      content: new Text("↶", { font: FONTS.toolbarGlyph, fill: QubitSketchColors.textColorProperty }),
+      content: new Text(StringManager.getInstance().getGlyphStrings().undoStringProperty, {
+        font: FONTS.toolbarGlyph,
+        fill: QubitSketchColors.textColorProperty,
+      }),
       listener: () => model.undo(),
       enabledProperty: model.canUndoProperty,
       accessibleName: a11yControls.undoStringProperty,
     });
     const redoButton = new RectangularPushButton({
       ...buttonAppearance,
-      content: new Text("↷", { font: FONTS.toolbarGlyph, fill: QubitSketchColors.textColorProperty }),
+      content: new Text(StringManager.getInstance().getGlyphStrings().redoStringProperty, {
+        font: FONTS.toolbarGlyph,
+        fill: QubitSketchColors.textColorProperty,
+      }),
       listener: () => model.redo(),
       enabledProperty: model.canRedoProperty,
       accessibleName: a11yControls.redoStringProperty,
