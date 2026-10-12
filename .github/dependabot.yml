@@ -23,6 +23,9 @@ updates:
       - dependency-name: "lodash"
       - dependency-name: "three"
       - dependency-name: "brace-expansion"
+      - dependency-name: "source-map-js"
+      - dependency-name: "undici"
+      - dependency-name: "fast-uri"
     groups:
       development-dependencies:
         dependency-type: "development"
