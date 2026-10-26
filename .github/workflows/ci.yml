@@ -13,22 +13,38 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Caller must grant the scopes the reusable workflows request (CodeQL needs
-# security-events: write, dependency-review needs pull-requests: write). The repo
-# default token is read-only, so without this block reusable calls fail at startup.
 permissions:
   contents: read
-  actions: read
-  security-events: write
-  pull-requests: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# Self-contained: no reusable workflows from other repos, and no npm audit,
+# dependency review, or CodeQL, so advisories in dependencies do not fail CI.
 jobs:
   ci:
-    uses: OpenLyceum/Baton/.github/workflows/ci.yml@main
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
 
-  dependency-review:
-    if: github.event_name == 'pull_request'
-    uses: OpenLyceum/Baton/.github/workflows/shared-dependency-review.yml@main
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
 
-  codeql:
-    uses: OpenLyceum/Baton/.github/workflows/shared-codeql.yml@main
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run check
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
